@@ -1,0 +1,8 @@
+ES6: генераторы и промисы
+
+Паттерны проектирования
+
+immutable.js (приоритет)
+vanilla.js
+
+promise lib: bluebird

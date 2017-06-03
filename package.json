@@ -1,0 +1,24 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "node.js learn projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ekzalt/201705-node.js-pojects.git"
+  },
+  "keywords": [
+    "node.js",
+    "javascript",
+    "es6"
+  ],
+  "author": "Alexander Zakharov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ekzalt/201705-node.js-pojects/issues"
+  },
+  "homepage": "https://github.com/ekzalt/201705-node.js-pojects#readme"
+}
