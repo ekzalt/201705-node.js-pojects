@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Weather</title>
+
+<style>
+
+/* CSS style */
+
+</style>
+</head>
+
+<body>
+
+<!-- HTML markup -->
+
+<h1>Weather</h1>
+<button>load</button>
+<br>
+<br>
+<div class="weather">
+  <div class="weatherImg"><img class="ico" src="http://openweathermap.org/img/w/02d.png" alt="weatherImg"><span class="city">Kharkiv</span></div>
+  <div class="weatherDeg">14 °C</div>
+  <div class="weatherWind">4 m/s</div>
+  <div class="weatherLast">22.04.2017 17:50:00</div>
+</div>
+
+<script>
+
+// JavaScript code
+  
+const url = 'http://api.openweathermap.org/data/2.5/weather?q=Kharkiv,ua&APPID=9fea622469655366e55b7443555daae8';
+const btn = document.querySelector('button');
+
+const printWeather = data => {
+  // console.log('print! :)');
+  const C = 273;
+  let weather = document.querySelector('.weather');
+  
+  let ico = weather.querySelector('.ico');
+  ico.src = `http://openweathermap.org/img/w/${data.weather[0].icon}.png`;
+  
+  let city = weather.querySelector('.city');
+  city.textContent = data.name;;
+  
+  let temp = weather.querySelector('.weatherDeg');
+  temp.textContent = `${parseInt(data.main.temp - C)} °C`;
+  
+  let wind = weather.querySelector('.weatherWind');
+  wind.textContent = `${parseInt(data.wind.speed)} m/s`;
+  
+  let last = weather.querySelector('.weatherLast');
+  last.textContent = new Date(data.dt * 1000).toLocaleString();
+};
+
+const httpGet = url => {
+  return new Promise((resolve, reject) => {
+    let xhr = new XMLHttpRequest();
+
+    const xhrLoad = e => {
+      console.log(e);
+      if (xhr.status === 200) {
+        // console.log(xhr.response);
+        resolve(xhr.response);
+
+      } else {
+        let err = new Error(xhr.statusText);
+        err.code = xhr.status;
+        // console.log(err);
+        reject(err);
+      }
+    };
+
+    const xhrError = e => {
+      console.log('Network Error', e);
+      reject( new Error('Network Error') );
+    };
+
+    xhr.open('GET', url, true);
+    xhr.addEventListener('load', xhrLoad);
+    xhr.addEventListener('error', xhrError);
+    xhr.send();
+  });
+};
+
+const delay = (ms, msg, out) => {
+  return new Promise((resolve, reject) => {
+    if (ms >= 10000) return reject('too much ms :(');
+
+    setTimeout(() => {
+      console.log(msg)
+      resolve(out);
+    }, ms);
+  });
+};
+
+const showWeather = e => {
+  console.log(e);
+  let dataJson;
+
+  delay(1000, 'first 1s')
+    .then(done => httpGet(url))
+    .then(data => delay(1000, 'second 1s', data))
+    .then(data => {
+      try {
+        dataJson = JSON.parse(data);
+      } catch (err) {
+        throw new Error('Invalid JSON');
+      }
+
+      console.log(dataJson);
+      printWeather(dataJson);
+      return dataJson;
+    })
+    .catch(err => console.log(err));
+};
+
+btn.addEventListener('click', showWeather);
+
+</script>
+
+</body>
+</html>

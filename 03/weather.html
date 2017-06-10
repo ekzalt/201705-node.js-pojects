@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+
+<style>
+
+/* CSS style */
+
+html { box-sizing: border-box; }
+
+*, *:before, *:after { box-sizing: inherit; }
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.customSelect {
+  width: 200px;
+  margin: 20px auto;
+  position: relative;
+}
+
+.customSelectBtn {
+  padding: 5px;
+  border: 1px solid grey;
+  cursor: pointer;
+}
+
+.customSelect ul {
+  list-style: none;
+  background: #eee;
+  border: 1px solid grey;
+  border-top: none;
+  width: 198px;
+  position: absolute;
+}
+
+.customSelect li {
+  padding: 5px 5px 5px 20px;
+  cursor: pointer;
+}
+
+.customSelect li:hover {
+  background: white;
+}
+
+.hide {
+  display: none;
+}
+
+.weather {
+  width: 204px;
+  margin: 100px auto 0 auto;
+}  
+
+.weather div {
+  line-height: 1.5;
+}
+
+  
+.weatherImg .ico {
+  display: inline-block;
+}
+
+  
+.weatherImg .city {
+  display: inline-block;
+  font-size: 36px;
+  line-height: 1.5;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HTML markup -->
+
+<div class="customSelect">
+  <div class="customSelectBtn">Киев</div>
+  <ul class="hide">
+    <li>Киев</li>
+    <li>Харьков</li>
+    <li>Одесса</li>
+  </ul>
+</div>
+
+<div class="weather">
+  <div class="weatherImg"><img class="ico" src="http://openweathermap.org/img/w/02d.png" alt="weatherImg"><span class="city">Kiev</span></div>
+  <div class="weatherDeg">14 °C</div>
+  <div class="weatherWind">4 m/s</div>
+  <div class="weatherLast">22.04.2017 17:50:00</div>
+</div>
+
+<script>
+
+// JavaScript code
+  
+/*
+http://api.openweathermap.org/data/2.5/weather?q=Kiev,ua&APPID=9fea622469655366e55b7443555daae8
+http://api.openweathermap.org/data/2.5/weather?q=Kharkiv,ua&APPID=9fea622469655366e55b7443555daae8
+http://api.openweathermap.org/data/2.5/weather?q=Odessa,ua&APPID=9fea622469655366e55b7443555daae8
+*/
+
+const printWeather = data => {
+  console.log('print! :)');
+  const C = 273;
+  let weather = document.querySelector('.weather');
+  
+  let ico = weather.querySelector('.ico');
+  ico.src = `http://openweathermap.org/img/w/${data.weather[0].icon}.png`;
+  
+  let city = weather.querySelector('.city');
+  city.textContent = data.name;;
+  
+  let temp = weather.querySelector('.weatherDeg');
+  temp.textContent = `${parseInt(data.main.temp - C)} °C`;
+  
+  let wind = weather.querySelector('.weatherWind');
+  wind.textContent = `${parseInt(data.wind.speed)} m/s`;
+  
+  let last = weather.querySelector('.weatherLast');
+  last.textContent = new Date(data.dt * 1000).toLocaleString();
+};
+  
+const getWeather = city => {
+  city = city || document.querySelector('.customSelectBtn').textContent;
+  console.log(city);
+  let url = '';
+  
+  switch (city) {
+    case 'Киев':
+      url = 'http://api.openweathermap.org/data/2.5/weather?q=Kiev,ua&APPID=9fea622469655366e55b7443555daae8';
+      break;
+    case 'Харьков':
+      url = 'http://api.openweathermap.org/data/2.5/weather?q=Kharkiv,ua&APPID=9fea622469655366e55b7443555daae8';
+      break;
+    case 'Одесса':
+      url = 'http://api.openweathermap.org/data/2.5/weather?q=Odessa,ua&APPID=9fea622469655366e55b7443555daae8';
+      break;
+  }
+
+  let xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.send();
+  
+  const printData = e => {
+    let data = JSON.parse(xhr.responseText);
+    console.log(data);
+    printWeather(data);
+  };
+  xhr.addEventListener('load', printData);
+};
+
+getWeather();
+
+const doSelect = e => {
+  let select = document.querySelector('.customSelect');
+  let btn = select.querySelector('.customSelectBtn');
+  let ul = select.querySelector('ul');
+
+  if (e.target === btn) {
+    ul.classList.toggle('hide');
+
+  } else if (select.contains(e.target) && e.target.closest('li')) {
+    btn.textContent = e.target.textContent;
+    ul.classList.add('hide');
+    getWeather(btn.textContent);
+
+  } else {
+    ul.classList.add('hide');
+  }
+};
+
+document.addEventListener('click', doSelect);
+  
+</script>
+
+</body>
+</html>
