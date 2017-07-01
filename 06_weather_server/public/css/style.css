@@ -1,0 +1,27 @@
+html {
+  box-sizing: border-box;
+  font: 16px/1.5 sans-serif;
+}
+
+* {
+  box-sizing: inherit;
+}
+
+main {
+  width: 240px;
+  margin: 0 auto;
+} 
+
+.hide {
+  display: none;
+}
+  
+.weather__img {
+  display: inline-block;
+}
+
+.weather__city {
+  display: inline-block;
+  font-size: 36px;
+  line-height: 1.5;
+}

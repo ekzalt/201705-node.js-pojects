@@ -1,3 +1,5 @@
+// Cоздать методы в новом классе, наследующем EventEmitter, которые создают, удаляют, копируют файлы.
+
 const EventEmitter = require('events').EventEmitter;
 const fs = require('fs');
 const path = require('path');
