@@ -18,7 +18,7 @@ const server = http.createServer((req, res) => {
   let urlParse = url.parse(req.url, true);
   // console.log(urlParse);
 
-  if (req.method === 'GET' && urlParse.path.match(/\.(html|css|js)$/)) {
+  if (req.method === 'GET' && urlParse.path.match(/\.(html|css|js|png)$/)) {
     const extension = path.extname(urlParse.path); // /css/style.css -> .css
     const filename = urlParse.path.slice(1); // /css/style.css -> css/style.css
     let contentType = '';
