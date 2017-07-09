@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/ekzalt/201705-node.js-pojects/issues"
   },
-  "homepage": "https://github.com/ekzalt/201705-node.js-pojects#readme"
+  "homepage": "https://github.com/ekzalt/201705-node.js-pojects#readme",
+  "dependencies": {
+    "connect": "^3.6.2"
+  }
 }

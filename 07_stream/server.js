@@ -1,27 +1,33 @@
 const http = require('http');
-const url = require('url');
+// const url = require('url');
 
 const hostname = '127.0.0.1';
 const port = 3000;
 
 const server = http.createServer((req, res) => {
-  let urlParse = url.parse(req.url, true);
+  // let urlParse = url.parse(req.url, true);
 
-  if (req.method === 'POST' && urlParse.path === '/upload') {
+  if (req.method === 'POST' && req.url === '/upload') {
     console.log('--- POST ---\n', req.headers);
 
-    res.writeHead(200, { 'Content-type': 'text/html' });
+    let body = [];
 
-    let reqData = [];
+    req.on('data', chunk => body.push(chunk));
 
-    req.on('data', chunk => reqData.push(chunk));
-    
     req.on('end', () => {
-      console.log('--- upload ---\n', reqData);
+      console.log('--- upload ---\n', body);
+      body = body.toString('utf8').slice(0, -16);
+      // body = Buffer.concat(body).toString('utf8').slice(0, -16);
 
-      reqData = reqData.toString('utf8').slice(0, -16);
-      res.write(`${reqData}<h4>all rights reserved &copy;</h4>\n</body>\n</html>`);
+      res.writeHead(200, { 'Content-type': 'text/html' });
+      res.write(`${body}<h4>all rights reserved &copy;</h4>\n</body>\n</html>`);
       res.end();
+    });
+
+    req.on('error', err => {
+      console.error(err);
+      res.writeHead(400, { 'Content-type': 'text/plain' });
+      res.end('Bad Request');
     });
 
   } else {
