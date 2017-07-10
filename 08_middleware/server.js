@@ -1,4 +1,5 @@
 const http = require('http');
+const url = require('url');
 const connect = require('connect');
 const app = connect();
 
@@ -8,15 +9,19 @@ const port = 3000;
 ////////////////////////////////////////////////////////////
 
 const logger = (req, res, next) => {
-  console.log('--- req.method ---\n', req.method);
-  console.log('--- req.url ---\n', req.url);
-  console.log('--- req.headers ---\n', req.headers);
-  console.log('--- req.headers.cookie ---\n', req.headers.cookie);
+  console.log(`------ ${req.method} ${req.url} ------`);
+  console.log('------ headers ------\n', req.headers);
 
   next();
 };
 
-const getCookies = (req, res, next) => {
+const parseUrl = (req, res, next) => {
+  req.urlParsed = url.parse(req.url, true);
+
+  next();
+};
+
+const parseCookie = (req, res, next) => {
   if (!req.headers.cookie) next();
 
   let cookies = {};
@@ -29,6 +34,22 @@ const getCookies = (req, res, next) => {
   req.headers.cookieParsed = cookies;
 
   next();
+};
+
+const parseBody = (req, res, next) => {
+  let body = [];
+
+  req.on('data', chunk => body.push(chunk));
+
+  req.on('end', () => {
+    body = body.toString();
+    req.bodyParsed = body;
+    next();
+  });
+
+  req.on('error', err => {
+    next(err);
+  });
 };
 
 const onError = (err, req, res, next) => {
@@ -46,29 +67,23 @@ const notFound = (req, res, next) => {
 };
 
 const index = (req, res, next) => {
-  let cookies = req.headers.cookieParsed;
+  let url = req.urlParsed;
+  if (url.pathname !== '/') next();
+  
+  let cookies = req.headers.cookieParsed || null;
+  let body = req.bodyParsed || null;
+  console.log('------ body ------\n', body);
 
   if (req.method === 'GET') {
     res.writeHead(200, {
       'Content-type': 'application/json',
       'Set-Cookie': ['mycookie=test', 'mycookie2=test2']
     });
-
-    res.end(JSON.stringify({ cookies }));
+    res.end(JSON.stringify({ url, cookies, body }));
 
   } else if (req.method === 'POST') {
-    let body = [];
-
-    req.on('data', chunk => body.push(chunk));
-
-    req.on('end', () => {
-      console.log('--- upload ---\n', body);
-      body = body.toString('utf8');
-      console.log('--- body ---\n', body);
-
-      res.writeHead(200, { 'Content-type': 'text/plain' });
-      res.end(JSON.stringify({ cookies, body }));
-    });
+    res.writeHead(200, { 'Content-type': 'application/json' });
+    res.end(JSON.stringify({ url, cookies, body }));
 
   } else {
     res.writeHead(400, { 'Content-type': 'text/plain' });
@@ -82,14 +97,15 @@ const server = http.createServer(app);
 
 // logger
 app.use(logger);
-
+// url
+app.use(parseUrl);
 // cookies
-app.use(getCookies);
-
+app.use(parseCookie);
+// body
+app.use(parseBody);
 // routers
 app.use('/', index);
 app.use(notFound);
-
 // errors
 app.use(onError);
 
