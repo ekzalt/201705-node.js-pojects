@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/ekzalt/201705-node.js-pojects#readme",
   "dependencies": {
-    "connect": "^3.6.2"
+    "connect": "^3.6.2",
+    "express": "^4.15.3"
   }
 }

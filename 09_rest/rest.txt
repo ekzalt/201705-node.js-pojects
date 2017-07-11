@@ -1,0 +1,59 @@
+﻿
+REST
+
+-------------------------------------------------
+
+head:
+host
+content-length
+GET	POST	PUT	DELETE	PATCH
+read	create	update	delete	update(noSQL)
+
+-------------------------------------------------
+
+Params:
+
+GET	http://localhost:3000/order/:id
+
+POST	http://localhost:3000/order
+{ name: 'Vasya', age: 30 }
+
+PUT	http://localhost:3000/order/:id
+{ name: 'Petya' }
+
+DELETE	http://localhost:3000/order/:id
+
+-------------------------------------------------
+
+Queries:
+
+?name=vasya&age=30
+
+-------------------------------------------------
+
+Домашка
+
+приложение делает:
+фейковые CRUD-операции для роутера order
+Отстреливать месседжи об операции
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
