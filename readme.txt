@@ -62,15 +62,29 @@ http://www.senchalabs.org/connect/bodyParser.html
 кастомный cookieParser
 https://stackoverflow.com/questions/3393854/get-and-set-a-single-cookie-with-node-js-http-server
 
+-----------------------------------------------------------------
 
+express bodyParser - parsing application/json, parsing application/x-www-form-urlencoded
 
+https://www.npmjs.com/package/body-parser
+https://github.com/expressjs/body-parser
+npm install body-parser
 
+const bodyParser = require('body-parser');
+// актуальные настройки
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
+-----------------------------------------------------------------
 
+express multer - parsing multipart/form-data
 
+https://www.npmjs.com/package/multer
+https://github.com/expressjs/multer
+npm install --save multer
 
-
-
+const multer = require('multer'); // v1.0.5
+const upload = multer(); // for parsing multipart/form-data
 
 
 
