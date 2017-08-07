@@ -1,0 +1,2 @@
+﻿Домашка:
+Написать свой модуль fs, используя EventEmitter, process stdin и stdout

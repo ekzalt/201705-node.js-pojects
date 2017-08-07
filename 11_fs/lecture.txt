@@ -1,9 +1,0 @@
-﻿Домашка:
-Написать свой модуль fs, используя EventEmitter, process stdin и stdout
-
-Типы БД:
-Memcached, Redis		кеширование с быстрым чтением из ОЗУ
-MongoDB, RavenDB, RsyncDB	быстрая запись (логгирование, state)
-RDBMS (SQL)			быстрое чтение и целостность
-Neo4G, GraphQL			графы
-Blockchain			распределенная сеть
