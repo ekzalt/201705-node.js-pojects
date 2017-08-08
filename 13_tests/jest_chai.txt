@@ -1,0 +1,10 @@
+﻿> npm i --save-dev jest chai
+
+package.json
+{
+  "scripts": {
+    "test": "node node_modules/jest/bin/jest test --watch --coverage"
+  }
+}
+
+> npm test
