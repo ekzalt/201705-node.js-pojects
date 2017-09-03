@@ -112,7 +112,7 @@ function Vegatable(public) {
 }
 
 // Через prototype - не найдет private, но снизит расход памяти
-Vegatable.prototype.getProp = function() {
+Vegatable.prototype.getProp = function () {
   // return private;
   return this.public;
 };
@@ -418,7 +418,7 @@ class ObservableTest extends Test {
       // let obj = { functionName, listener };
       // console.log('appendListener: this.observableList.push', obj);
       this.observableList.push({ functionName, listener });
-      
+
       return true;
     }
 
@@ -468,3 +468,282 @@ test1.appendListener('setTestParams', logger);
 test1.setTestParamsAsync();
 
 //////////////////////////////////////////////////////
+
+// Mediator (посредник)
+
+// Придуман, чтобы подружить разные объектры с разными API
+
+var Task = function (data) {
+  this.name = data.name;
+  this.priority = data.priority;
+  this.project = data.project;
+  this.user = data.user;
+  this.completed = data.completed;
+};
+
+Task.prototype.complete = function () {
+  console.log('completing task ' + this.name);
+  this.completed = true;
+};
+
+Task.prototype.save = function () {
+  console.log('saving task ' + this.name);
+};
+
+var notificationService = function () {
+  var message = 'Notifying ';
+
+  this.update = function (task) {
+    console.log(message + task.user + ' for task ' + task.name);
+  }
+};
+var loggingService = function () {
+  var message = 'Logging ';
+
+  this.update = function (task) {
+    console.log(message + task.user + ' for task ' + task.name);
+  }
+}
+var auditingService = function () {
+  var message = 'Auditing ';
+
+  this.update = function (task) {
+    console.log(message + task.user + ' for task ' + task.name);
+  }
+};
+
+// mediator-module
+var mediator = (function () {
+  var channels = {};
+
+  var subscribe = function (channel, context, func) {
+    if (!mediator.channels[channel]) mediator.channels[channel] = [];
+
+    mediator.channels[channel].push({
+      context: context,
+      func: func
+    });
+  };
+
+  var publish = function (channel) {
+    if (!mediator.channels[channel]) return false;
+
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    for (var i = 0; i < mediator.channels[channel].length; i++) {
+      var sub = mediator.channels[channel][i];
+
+      sub.func.apply(sub.context, args);
+    }
+  };
+
+  return {
+    channels: {},
+    subscribe: subscribe,
+    publish: publish
+  };
+})();
+
+var task = new Task({
+  name: 'create a demo for mediators',
+  user: 'Jon'
+});
+
+var not = new notificationService();
+var ls = new loggingService();
+var audit = new auditingService();
+
+mediator.subscribe('complete', not, not.update);
+mediator.subscribe('complete', ls, ls.update);
+mediator.subscribe('complete', audit, audit.update);
+
+task.complete = function () {
+  mediator.publish('complete', this);
+  Task.prototype.complete.call(this);
+};
+
+task.complete();
+
+//////////////////////////////////////////////////////
+
+// Command
+
+// Обращаемся к ...
+
+class Cookie {
+  bake(kg) {
+    console.log(`cookie bake ${kg}`);
+  }
+
+  eat(times) {
+    console.log(`cookie eat ${times}`);
+  }
+}
+
+// decorator
+let commandCookie = function () {
+  const cookie = new Cookie();
+
+  let commands = [];
+
+  cookie.add = function (...args) {
+    commands.push(...args);
+  };
+
+  cookie.undo = function () {
+    this.execute();
+  };
+
+  cookie.execute = function () {
+    // console.log(commands);
+    for (let i = 0; i < commands.length; i++) {
+      const command = commands[i];
+      // console.log(command);
+      // const args = command.arguments;
+      // console.log(args);
+
+      if (cookie[command] && typeof cookie[command] === 'function') cookie[command]();
+    }
+
+  };
+
+  return cookie;
+};
+
+/*
+аргументы не передаются
+- надо толи добавлять с уже заданными жестко статическими аргументами .add()
+- толи вызывать передавая имя функции и динамические аргументы .execute()
+*/
+
+let cookie = commandCookie();
+cookie.add('eat', 'bake');
+cookie.execute();
+
+//////////////////////////////////////////////////////
+
+// Chain of response (чейнинг)
+
+class MyJquery {
+  constructor() {
+    this.capasity = 100;
+  }
+
+  getCapasity(num) {
+    this.capasity -= num;
+    console.log(this.capasity);
+    return this;
+  }
+
+  sumCapasity(num) {
+    this.capasity += num;
+    console.log(this.capasity);
+    return this;
+  }
+}
+
+let jquery = new MyJquery();
+
+jquery.getCapasity(2).sumCapasity(10).getCapasity(8);
+
+//////////////////////////////////////////////////////
+
+// Proxy
+
+function GeoCoder() {
+  this.getLatLng = function (address) {
+
+    switch(address) {
+      case 'Amsterdam': return '52.3700° N, 4.8900° E';
+      case 'London':    return '51.5171° N, 0.1062° W';
+      case 'Paris':     return '48.8742° N, 2.3470° E';
+      case 'Berlin':    return '52.5233° N, 13.4127° E';
+      default:          return '';
+    }
+  };
+}
+
+// proxy decorator
+function GeoProxy() {
+  var geocoder = new GeoCoder();
+  var geocache = {};
+
+  return {
+    getLatLng: function (address) {
+      if (!geocache[address]) geocache[address] = geocoder.getLatLng(address);
+
+      log.add(address + ': ' + geocache[address]);
+
+      return geocache[address];
+    },
+    getCount: function () {
+      var count = 0;
+
+      for (var code in geocache) count++;
+
+      return count;
+    }
+  };
+}
+
+var log = (function () {
+  var log = '';
+
+  return {
+    add: function (msg) {
+      log += msg + '\n';
+    },
+    show: function () {
+      console.log(log);
+      log = '';
+    }
+  };
+})();
+
+function run() {
+  var geo = new GeoProxy();
+
+  geo.getLatLng('Amsterdam');
+  geo.getLatLng('Paris');
+  geo.getLatLng('Berlin');
+  geo.getLatLng('London');
+  geo.getLatLng('Amsterdam');
+  geo.getLatLng('London');
+  geo.getLatLng('Berlin');
+  geo.getLatLng('Paris');
+
+  log.add('\n Cache size: ' + geo.getCount());
+  log.show();
+}
+
+run();
+
+//////////////////////////////////////////////////////
+
+// Strategy
+
+class Order {
+  constructor(func) {
+    this.total = 100;
+    this.tax = 5;
+    this.func = func;
+  }
+
+  execute() {
+    return this.func();
+  }
+}
+
+const texasRateCalc = function () {
+  return this.total + this.tax;
+};
+
+const wisconsinRateCalc = function () {
+  return this.total - this.tax * 2;
+};
+
+let texasOrder = new Order(texasRateCalc);
+let wisconsinOrder = new Order(wisconsinRateCalc);
+
+console.log(texasOrder.execute());
+console.log(wisconsinOrder.execute());
