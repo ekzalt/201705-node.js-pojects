@@ -1,0 +1,25 @@
+// bad code
+
+const http = require('http');
+
+const longCalc = () => {
+  let sum = 0;
+
+  for (let i = 0; i < 1e9; i++) sum += i;
+
+  return sum;
+};
+
+const server = http.createServer();
+
+server.on('request', (req, res) => {
+  if (req.url === '/calc') {
+    let sum = longCalc();
+    res.end(`Sum: ${sum}`);
+
+  } else {
+    res.end('OK');
+  }
+});
+
+server.listen(3000);
